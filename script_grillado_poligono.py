@@ -58,14 +58,15 @@ try:
     )
 
     # Agregar campos para numeración y área
-    arcpy.management.AddField(salida_fishnet, "cod_pol", "TEXT", field_length=10) 
-    arcpy.management.AddField(salida_fishnet, "num_fila", "TEXT", field_length=4)
-    arcpy.management.AddField(salida_fishnet, "num_colum", "TEXT", field_length=4)
-    arcpy.management.AddField(salida_fishnet, "let_colum", "TEXT", field_length=5) 
-    arcpy.management.AddField(salida_fishnet, "fila_colum", "TEXT", field_length=10) 
-    arcpy.management.AddField(salida_fishnet, "area_inter", "DOUBLE")  
-    arcpy.management.AddField(salida_fishnet, "area_gri", "DOUBLE")
+    arcpy.management.AddField(salida_fishnet, "poly_code", "TEXT", field_length=10) 
+    arcpy.management.AddField(salida_fishnet, "row_num", "TEXT", field_length=4)
+    arcpy.management.AddField(salida_fishnet, "col_num", "TEXT", field_length=4)
+    arcpy.management.AddField(salida_fishnet, "col_let", "TEXT", field_length=5) 
+    arcpy.management.AddField(salida_fishnet, "rowcol_id", "TEXT", field_length=10) 
+    arcpy.management.AddField(salida_fishnet, "int_area", "DOUBLE")  
+    arcpy.management.AddField(salida_fishnet, "grid_area", "DOUBLE")
     arcpy.management.DeleteField(salida_fishnet, ["Id"])
+
     # Obtener datos de la grilla
     datos_grilla = []
     with arcpy.da.SearchCursor(salida_fishnet, ["OID@", "SHAPE@XY"]) as search_cursor:
@@ -81,7 +82,7 @@ try:
     col_contadores = {y: 1 for y in ys_unicos}
 
     # Actualizar los valores de la grilla
-    with arcpy.da.UpdateCursor(salida_fishnet, ["OID@", "SHAPE@", "cod_pol", "num_fila", "num_colum", "let_colum", "fila_colum", "area_inter", "area_gri"]) as update_cursor:
+    with arcpy.da.UpdateCursor(salida_fishnet, ["OID@", "SHAPE@", "poly_code", "row_num", "col_num", "col_let", "rowcol_id", "int_area", "grid_area"]) as update_cursor:
         for row in update_cursor:
             oid = row[0]  
             poligono_celda = row[1] 
@@ -115,7 +116,7 @@ try:
     
     # Seleccionar solo las celdas donde el área de intersección sea al menos el porcentaje indicado en el parametro
     arcpy.MakeFeatureLayer_management(salida_fishnet, "fishnet_layer")
-    sql_expression = f"area_inter >= (area_gri * {valor_porcentaje})"
+    sql_expression = f"int_area >= (grid_area * {valor_porcentaje})"
     arcpy.SelectLayerByAttribute_management("fishnet_layer", "NEW_SELECTION", sql_expression)
 
     # Guardar las celdas seleccionadas en un archivo temporal y luego sobrescribir la salida original
@@ -124,7 +125,8 @@ try:
     arcpy.management.Delete(salida_fishnet)
     arcpy.management.Rename(temp_output, salida_fishnet)
 
-    arcpy.AddMessage(f"✅ Grillado generado correctamente según porcentaje de intersección: {salida_fishnet}")
+    arcpy.AddMessage(f"✅ Grillado generado correctamente: {salida_fishnet}")
 
 except Exception as e:
     arcpy.AddError(f"❌ Error: {str(e)}")
+
