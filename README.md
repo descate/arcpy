@@ -10,5 +10,6 @@ Parametros:
 4. Porcentaje de Intersección
 5. Archivo de Salida
 
-![image](https://github.com/user-attachments/assets/037d1747-f3e5-4c9c-a811-9803c9d74af6)
+<img width="677" height="636" alt="image" src="https://github.com/user-attachments/assets/6df46dce-7303-4fc4-9a86-31c668445f0f" />
+
 
